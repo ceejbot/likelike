@@ -1,6 +1,5 @@
 use chrono::{DateTime, Local, NaiveDate, TimeZone, Utc};
 use futures::{pin_mut, StreamExt};
-
 use scraper::{Html, Selector};
 use std::collections::HashMap;
 use std::io::copy;

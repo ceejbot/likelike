@@ -1,3 +1,4 @@
 /target
 /Cargo.lock
 db.sqlite3
+ggml-vicuna-13B-1.1-q8_0.bin
