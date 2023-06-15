@@ -16,7 +16,7 @@ struct Args {
 
     /// If not given, defaults to the local data dir per the "dirs" crate. E.g., on macOS, this
     /// will be "sqlite:///Users/foo/Library/Application Support/likelike.sqlite3".
-    #[arg(short, long)]
+    #[arg(short, long, global=true)]
     database_url: Option<String>,
 }
 
@@ -237,10 +237,16 @@ async fn main() -> eyre::Result<()> {
                             let ggml = std::env::var("LIKELIKE_GGML")
                                 .ok()
                                 .unwrap_or_else(|| "ggml-vicuna-13B-1.1-q5_1.bin".to_string());
+
+                            let ggml_path = std::path::Path::new(ggml.as_str());
+                            if !ggml_path.exists() {
+                                eprintln!("Unable to find ggml file! Verify that LIKELIKE_GGML is set and the file exists. path='{}'", ggml.as_str());
+                                std::process::exit(1);
+                            }
                             // load a GGML model from disk
                             let llama = llm::load::<llm::models::Llama>(
                                 // path to GGML file
-                                std::path::Path::new(ggml.as_str()),
+                                ggml_path,
                                 llm::VocabularySource::Model,
                                 // llm::ModelParameters
                                 ModelParameters {

@@ -29,6 +29,9 @@ install_tools:
   if [ ! $(which sqlx) ]; then
     cargo install sqlx-cli
   fi
+  if [ ! $(which cargo-nextest) ]; then
+    cargo install cargo-nextest
+  fi
   echo "Checking for sqlite3..."
   if [ ! $(which sqlite3) ]; then
     if [[ $(uname -o) = "GNU/Linux" ]]; then
@@ -38,7 +41,16 @@ install_tools:
     fi
   fi
 
-summarize: build
-  cargo build --release
-  target/release/likelike import fixtures/links-1.md
-  target/release/likelike show --mode text ascii
+setup_summarize:
+  #!/bin/bash
+  echo "Building for release with llm feature..."
+  cargo build --quiet --release --features=llm
+  echo "Importing interesting link data..."
+  target/release/likelike import -d db.sqlite3 fixtures/*.md
+
+summarize:
+  cargo build --quiet --release --features=llm
+  target/release/likelike show -d db.sqlite3 "*sunnyday*" 
+  #target/release/likelike show -d db.sqlite3 --mode summary "*sunnyday*" 
+  target/release/likelike show -d db.sqlite3 "*gutenberg*" 
+  #target/release/likelike show -d db.sqlite3 --mode summary "*gutenberg*" 
