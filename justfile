@@ -21,3 +21,24 @@ generate_sql_data:
 
   cargo sqlx prepare --database-url sqlite://db.sqlite3 --check &>/dev/null ||
   cargo sqlx prepare --database-url sqlite://db.sqlite3
+
+install_tools:
+  #!/bin/bash
+  set -e
+  echo "Checking for sqlx..."
+  if [ ! $(which sqlx) ]; then
+    cargo install sqlx-cli
+  fi
+  echo "Checking for sqlite3..."
+  if [ ! $(which sqlite3) ]; then
+    if [[ $(uname -o) = "GNU/Linux" ]]; then
+      sudo apt install sqlite3
+    else
+      brew install sqlite3
+    fi
+  fi
+
+summarize: build
+  cargo build --release
+  target/release/likelike import fixtures/links-1.md
+  target/release/likelike show --mode text ascii
